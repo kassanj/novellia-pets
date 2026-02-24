@@ -4,6 +4,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Heading, Text, Box, Spinner, Table, Button, Dialog, Link as ChakraLink } from '@chakra-ui/react'
 import { getPets, deletePet } from '../../lib/api'
 import type { Pet } from '../../types/index'
+import { toaster } from '../lib/toaster'
+  
 
 const PetList = (): React.ReactElement => {
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -14,17 +16,16 @@ const PetList = (): React.ReactElement => {
     queryFn: () => getPets(),
   })
 
-  const handleDelete = (petId: string, e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleDelete = (petId: string) => {
     deletePet(petId)
       .then(() => {
         queryClient.invalidateQueries({ queryKey: ['pets'] })
         queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+        toaster.success({ title: 'Pet deleted' })
       })
       .catch((err) => {
         console.error(err)
-        setDeleteError(err?.message ?? 'Failed to delete pet')
+        toaster.error({ title: 'Failed to delete pet' })
       })
   }
 

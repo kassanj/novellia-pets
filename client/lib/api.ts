@@ -26,8 +26,8 @@ export const getRecords = (petId: string) =>
 export const createRecord = (petId: string, data: Record) =>
   api.post(`/pets/${petId}/records`, data).then(r => r.data)
 
-export const deleteRecord = (recordId: string) =>
-  api.delete(`/records/${recordId}`).then(r => r.data)
+export const deleteRecord = (petId: string, recordId: string) =>
+  api.delete(`/pets/${petId}/records/${recordId}`).then(r => r.data)
 
 // Dashboard
 export const getDashboardStats = () =>

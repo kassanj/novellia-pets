@@ -95,11 +95,16 @@ router.put('/:id', async (req: Request<RecordsParams>, res) => {
 router.delete('/:id', async (req: Request<RecordsParams>, res) => {
   try {
     const id = (req.params as RecordsParams).id
+    const petId = (req.params as RecordsParams).petId
+    if (!petId) {
+      res.status(400).json({ error: 'Pet ID is required' })
+      return
+    }
     if (!id) {
       res.status(400).json({ error: 'ID is required' })
       return
     }
-    await prisma.medicalRecord.delete({ where: { id } })
+    await prisma.medicalRecord.delete({ where: { petId, id } })
     res.status(204).send()
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete record' })

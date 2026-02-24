@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getPet, getRecords, deleteRecord } from '../../lib/api'
 import { Heading, Text, Box, Spinner, Table, Badge, Button, Dialog } from '@chakra-ui/react'
+import { toaster } from '../lib/toaster'
 import type { Record } from '../../types/index'
 
 
@@ -37,13 +38,17 @@ const PetDetail = (): React.ReactElement => {
   }
 
   const handleDelete = (recordId: string) => {
-    deleteRecord(recordId)
+
+    const petId = petData?.id;
+
+    deleteRecord(petId, recordId)
       .then(() => {
-        queryClient.invalidateQueries({ queryKey: ['records', petData?.id] });
+        queryClient.invalidateQueries({ queryKey: ['records', petId] })
+        toaster.success({ title: 'Record deleted' })
       })
       .catch((err) => {
         console.error(err);
-        setDeleteError(err?.message ?? 'Failed to delete record');
+        toaster.error({ title: 'Failed to delete record' })
       });
   }
 
@@ -105,7 +110,7 @@ const PetDetail = (): React.ReactElement => {
                     key={record.id} 
                   >
                     <Table.Cell>{getRecordBadge(record.recordType)}</Table.Cell>
-                    <Table.Cell>{record.id}</Table.Cell>
+                    <Table.Cell>{record.data.name}</Table.Cell>
                     <Table.Cell>
                       {record.data.date ? new Date(record.data.date).toLocaleDateString() : '-'}
                     </Table.Cell>
