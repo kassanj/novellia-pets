@@ -93,9 +93,9 @@ export default function MedicalRecordModal({
               )}
 
               {/* Record type selector — disabled when editing */}
-              <Field.Root mb="4">
+              <Field.Root mb="4" disabled={isEditing}>
                 <Field.Label>Type</Field.Label>
-                <NativeSelect.Root {...(isEditing ? { disabled: true } : {})}>
+                <NativeSelect.Root>
                   <NativeSelect.Field
                     value={recordType}
                     onChange={e => changeRecordType(e.target.value as RecordType)}
