@@ -1,22 +1,22 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Heading, Text, Box, Spinner, Table, Button, Link as ChakraLink } from '@chakra-ui/react'
-import { getPets, deletePet } from '../../lib/api'
+import { useQueryClient } from '@tanstack/react-query'
+import { Heading, Text, Box, Spinner, Table, Button, Link as ChakraLink, Flex, Input } from '@chakra-ui/react'
+import { deletePet } from '../../lib/api'
 import type { Pet } from '../../types/index'
 import { toaster } from '../lib/toaster'
 import PetModal from '../components/PetModal';
+import { usePetsSearch } from '../hooks/usePetSearch'
+
 
 const PetList = (): React.ReactElement => {
   const [petModalOpen, setPetModalOpen] = useState(false)
   const [editingPet, setEditingPet] = useState<Pet | null>(null)
+  const [search, setSearch] = useState('')
 
   const queryClient = useQueryClient()
 
-  const { data: pets, isLoading, error } = useQuery({
-    queryKey: ['pets'],
-    queryFn: () => getPets(),
-  })
+  const { data: pets, isLoading, error } = usePetsSearch({ search })
 
   const handleDeletePet = (petId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -45,7 +45,6 @@ const PetList = (): React.ReactElement => {
     toaster.success({ title: editingPet ? 'Pet updated' : 'Pet added' })
   }
 
-  if (isLoading) return <Spinner />
   if (error) return <Text color="red.500">Error: {(error as Error)?.message}</Text>
 
   return (
@@ -62,21 +61,41 @@ const PetList = (): React.ReactElement => {
       />
 
       <Box mb="4">
-        <Heading as="h1" py="4">Pets</Heading>
+        
+        <Flex justifyContent="space-between" alignItems="center">
+          <Box>
+      `    <Heading as="h1" py="4">Pets</Heading>
+            <Button
+              variant="outline"
+              mb="4"
+              onClick={() => {
+                setEditingPet(null)
+                setPetModalOpen(true)
+              }}
+            >
+              Add Pet
+            </Button>`
+          </Box>
+          <Box>
+       
+              <Input
+                type="text"
+                placeholder="Search pets"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+      
+          </Box>
+        </Flex>
 
-        <Button
-          variant="outline"
-          mb="4"
-          onClick={() => {
-            setEditingPet(null)
-            setPetModalOpen(true)
-          }}
-        >
-          Add Pet
-        </Button>
-
-        {!pets?.length ? (
-          <Text>No pets yet.</Text>
+        {isLoading ? (
+          <Flex justifyContent="center" alignItems="center">
+            <Spinner size="xl" />
+          </Flex>
+        ) : !pets?.length ? (
+          <Flex justifyContent="center" alignItems="center">
+            <Text>No pets found.</Text>
+          </Flex>
         ) : (
           <Table.Root>
             <Table.Header>
