@@ -1,14 +1,16 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Heading, Text, Box, Spinner, Table, Button, Dialog, Link as ChakraLink } from '@chakra-ui/react'
+import { Heading, Text, Box, Spinner, Table, Button, Link as ChakraLink } from '@chakra-ui/react'
 import { getPets, deletePet } from '../../lib/api'
 import type { Pet } from '../../types/index'
 import { toaster } from '../lib/toaster'
-  
+import AddPetModal from '../components/AddPetModal';
 
 const PetList = (): React.ReactElement => {
-  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [addPetOpen, setAddPetOpen] = useState(false)
+  const [editingPet, setEditingPet] = useState<Pet | null>(null)
+
   const queryClient = useQueryClient()
 
   const { data: pets, isLoading, error } = useQuery({
@@ -16,7 +18,9 @@ const PetList = (): React.ReactElement => {
     queryFn: () => getPets(),
   })
 
-  const handleDelete = (petId: string) => {
+  const handleDeletePet = (petId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+
     deletePet(petId)
       .then(() => {
         queryClient.invalidateQueries({ queryKey: ['pets'] })
@@ -29,37 +33,48 @@ const PetList = (): React.ReactElement => {
       })
   }
 
+  const handleEditPet = (pet: Pet, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setEditingPet(pet)
+    setAddPetOpen(true)
+  }
+
+  const handleAddPetSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['pets'] })
+    queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+    toaster.success({ title: 'Pet added' })
+  }
+
   if (isLoading) return <Spinner />
   if (error) return <Text color="red.500">Error: {(error as Error)?.message}</Text>
 
   return (
     <>
-      <Dialog.Root
-        open={!!deleteError}
+      <AddPetModal
+        key={editingPet?.id ?? 'new'}  // key change forces re-mount when switching pets
+        open={addPetOpen}
+        pet={editingPet}
         onOpenChange={(e) => {
-          if (!e.open) setDeleteError(null)
+          setAddPetOpen(e.open)
+          if (!e.open) setEditingPet(null)
         }}
-      >
-        <Dialog.Backdrop />
-        <Dialog.Positioner>
-          <Dialog.Content>
-            <Dialog.Header>
-              <Dialog.Title color="red.500" fontWeight="bold">Delete failed</Dialog.Title>
-            </Dialog.Header>
-            <Dialog.Body>
-              <Text>{deleteError}</Text>
-            </Dialog.Body>
-            <Dialog.Footer>
-              <Dialog.CloseTrigger asChild>
-                <Button variant="outline" p={4} m={2} width="40px" height="40px">X</Button>
-              </Dialog.CloseTrigger>
-            </Dialog.Footer>
-          </Dialog.Content>
-        </Dialog.Positioner>
-      </Dialog.Root>
+        onSuccess={handleAddPetSuccess}
+      />
 
       <Box mb="4">
-        <Heading as="h1" py="4">All Pets</Heading>
+        <Heading as="h1" py="4">Pets</Heading>
+
+        <Button
+          variant="outline"
+          mb="4"
+          onClick={() => {
+            setEditingPet(null)
+            setAddPetOpen(true)
+          }}
+        >
+          Add Pet
+        </Button>
+
         {!pets?.length ? (
           <Text>No pets yet.</Text>
         ) : (
@@ -71,11 +86,14 @@ const PetList = (): React.ReactElement => {
                 <Table.ColumnHeader>Owner</Table.ColumnHeader>
                 <Table.ColumnHeader>Date of Birth</Table.ColumnHeader>
                 <Table.ColumnHeader></Table.ColumnHeader>
+                <Table.ColumnHeader></Table.ColumnHeader>
               </Table.Row>
             </Table.Header>
             <Table.Body>
               {pets.map((pet: Pet) => {
+
                 const dob = typeof pet.dob === 'string' ? new Date(pet.dob) : pet.dob
+
                 return (
                   <Table.Row key={pet.id}>
                     <Table.Cell>
@@ -97,9 +115,19 @@ const PetList = (): React.ReactElement => {
                         variant="outline"
                         colorScheme="red"
                         size="sm"
-                        onClick={(e) => handleDelete(pet.id, e)}
+                        onClick={(e) => handleEditPet(pet, e)}
                       >
-                        X
+                        edit
+                      </Button>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Button
+                        variant="outline"
+                        colorScheme="red"
+                        size="sm"
+                        onClick={(e) => handleDeletePet(pet.id, e)}
+                      >
+                        x
                       </Button>
                     </Table.Cell>
                   </Table.Row>
