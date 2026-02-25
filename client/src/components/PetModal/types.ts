@@ -14,12 +14,12 @@ export type FieldErrors = {
   
   import type { Pet as GlobalPet } from '../../../types/index'
 
-  export type AddPetModalProps = {
+  export type PetModalProps = {
     open: boolean
     onOpenChange: (details: { open: boolean }) => void
     onSuccess?: () => void
     pet: GlobalPet | null
   }
 
-  /** Pet shape for form initialization (useAddPetForm accepts dob as Date or string). */
+  /** Pet shape for form initialization (usePetModalForm accepts dob as Date or string). */
   export type Pet = GlobalPet

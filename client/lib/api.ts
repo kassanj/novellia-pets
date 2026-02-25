@@ -26,6 +26,9 @@ export const getRecords = (petId: string) =>
 export const createRecord = (petId: string, data: Record) =>
   api.post(`/pets/${petId}/records`, data).then(r => r.data)
 
+export const updateRecord = (petId: string, recordId: string, data: { data: Record['data'] }) =>
+  api.put(`/pets/${petId}/records/${recordId}`, data).then(r => r.data)
+
 export const deleteRecord = (petId: string, recordId: string) =>
   api.delete(`/pets/${petId}/records/${recordId}`).then(r => r.data)
 

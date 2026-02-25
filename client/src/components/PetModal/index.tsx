@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react'
 import { Dialog, Field, Input, Button, Text } from '@chakra-ui/react'
 import { createPet, updatePet } from '../../../lib/api'
-import { useAddPetForm } from './useAddPetForm'
-import type { AddPetModalProps } from './types'
+import { usePetForm } from './usePetForm'
+import type { PetModalProps } from './types'
 
-export default function AddPetModal({
+export default function PetModal({
   open,
   onOpenChange,
   onSuccess,
   pet,
-}: AddPetModalProps) {
+}: PetModalProps) {
 
   const isEditing = !!pet
   
@@ -25,11 +25,12 @@ export default function AddPetModal({
     buildPayload,
     reset,
     initialize,
-  } = useAddPetForm()
+  } = usePetForm()
 
   useEffect(() => {
     if (open && pet) initialize(pet)
-  }, [open, pet, initialize])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only when open or pet id changes; include initialize/pet would re-run every render and reset form in edit mode
+  }, [open, pet?.id])
 
   const close = () => {
     reset()

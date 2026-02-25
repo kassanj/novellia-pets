@@ -5,10 +5,10 @@ import { Heading, Text, Box, Spinner, Table, Button, Link as ChakraLink } from '
 import { getPets, deletePet } from '../../lib/api'
 import type { Pet } from '../../types/index'
 import { toaster } from '../lib/toaster'
-import AddPetModal from '../components/AddPetModal';
+import PetModal from '../components/PetModal';
 
 const PetList = (): React.ReactElement => {
-  const [addPetOpen, setAddPetOpen] = useState(false)
+  const [petModalOpen, setPetModalOpen] = useState(false)
   const [editingPet, setEditingPet] = useState<Pet | null>(null)
 
   const queryClient = useQueryClient()
@@ -36,13 +36,13 @@ const PetList = (): React.ReactElement => {
   const handleEditPet = (pet: Pet, e: React.MouseEvent) => {
     e.stopPropagation()
     setEditingPet(pet)
-    setAddPetOpen(true)
+    setPetModalOpen(true)
   }
 
-  const handleAddPetSuccess = () => {
+  const handlePetModalSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['pets'] })
     queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-    toaster.success({ title: 'Pet added' })
+    toaster.success({ title: editingPet ? 'Pet updated' : 'Pet added' })
   }
 
   if (isLoading) return <Spinner />
@@ -50,15 +50,15 @@ const PetList = (): React.ReactElement => {
 
   return (
     <>
-      <AddPetModal
+      <PetModal
         key={editingPet?.id ?? 'new'}  // key change forces re-mount when switching pets
-        open={addPetOpen}
+        open={petModalOpen}
         pet={editingPet}
         onOpenChange={(e) => {
-          setAddPetOpen(e.open)
+          setPetModalOpen(e.open)
           if (!e.open) setEditingPet(null)
         }}
-        onSuccess={handleAddPetSuccess}
+        onSuccess={handlePetModalSuccess}
       />
 
       <Box mb="4">
@@ -69,7 +69,7 @@ const PetList = (): React.ReactElement => {
           mb="4"
           onClick={() => {
             setEditingPet(null)
-            setAddPetOpen(true)
+            setPetModalOpen(true)
           }}
         >
           Add Pet
@@ -85,7 +85,6 @@ const PetList = (): React.ReactElement => {
                 <Table.ColumnHeader>Animal Type</Table.ColumnHeader>
                 <Table.ColumnHeader>Owner</Table.ColumnHeader>
                 <Table.ColumnHeader>Date of Birth</Table.ColumnHeader>
-                <Table.ColumnHeader></Table.ColumnHeader>
                 <Table.ColumnHeader></Table.ColumnHeader>
               </Table.Row>
             </Table.Header>
@@ -110,25 +109,24 @@ const PetList = (): React.ReactElement => {
                     <Table.Cell>
                       {dob.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </Table.Cell>
+               
                     <Table.Cell>
-                      <Button
-                        variant="outline"
-                        colorScheme="red"
-                        size="sm"
-                        onClick={(e) => handleEditPet(pet, e)}
-                      >
-                        edit
-                      </Button>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Button
-                        variant="outline"
-                        colorScheme="red"
-                        size="sm"
-                        onClick={(e) => handleDeletePet(pet.id, e)}
-                      >
-                        x
-                      </Button>
+                      <Box display="flex" gap="2" justifyContent="end">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => handleEditPet(pet, e)}
+                          >
+                            edit
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => handleDeletePet(pet.id, e)}
+                        >
+                          x
+                        </Button>
+                      </Box>
                     </Table.Cell>
                   </Table.Row>
                 )

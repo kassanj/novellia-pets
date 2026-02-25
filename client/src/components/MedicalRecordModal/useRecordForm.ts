@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { RecordType } from '../../../types/index'
+import type { RecordType, Record } from '../../../types/index'
 import type { FieldErrors, RecordFormState, CreateRecordPayload } from './types'
 import { MIN_STRING_LENGTH } from './constants'
 
@@ -14,12 +14,51 @@ const DEFAULT_STATE: RecordFormState = {
   severity: 'MILD',
 }
 
-export function useRecordForm(initialType: RecordType = 'VACCINE') {
+const dateToInputValue = (d: Date | string): string => {
+  if (typeof d === 'string') return d.slice(0, 10)
+  return (d as Date).toISOString().slice(0, 10)
+}
+
+const useRecordForm = (initialType: RecordType = 'VACCINE') => {
   const [recordType, setRecordType] = useState<RecordType>(initialType)
   const [form, setForm] = useState<RecordFormState>(DEFAULT_STATE)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const initialize = (record: Record) => {
+    setRecordType(record.recordType)
+    const recordData = record.data
+
+    if (record.recordType === 'VACCINE' && recordData && 'date' in recordData) {
+
+      const v = recordData as { date?: Date | string; name?: string; administeredBy?: string; notes?: string }
+      
+      setForm({
+        name: v.name ?? '',
+        date: v.date ? dateToInputValue(v.date) : '',
+        administeredBy: v.administeredBy ?? '',
+        notes: v.notes ?? '',
+        reactionsInput: DEFAULT_STATE.reactionsInput,
+        severity: DEFAULT_STATE.severity,
+      })
+
+    } else if (record.recordType === 'ALLERGY' && recordData && 'reactions' in recordData) {
+
+      const allergyData = recordData as { reactions?: string[]; severity?: string }
+
+      setForm({
+        name: recordData.name ?? '',
+        date: DEFAULT_STATE.date,
+        administeredBy: DEFAULT_STATE.administeredBy,
+        notes: recordData.notes ?? '',
+        reactionsInput: (allergyData.reactions ?? []).join(', '),
+        severity: allergyData.severity ?? DEFAULT_STATE.severity,
+      })
+
+    }
+    setFieldErrors({})
+  }
 
   const updateField = <K extends keyof RecordFormState>(
     key: K,
@@ -128,5 +167,8 @@ export function useRecordForm(initialType: RecordType = 'VACCINE') {
     validate,
     buildPayload,
     reset,
+    initialize,
   }
 }
+
+export default useRecordForm;

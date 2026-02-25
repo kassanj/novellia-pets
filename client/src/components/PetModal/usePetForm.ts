@@ -11,7 +11,7 @@ const DEFAULT_STATE: PetFormState = {
   dob: '',
 }
 
-export function useAddPetForm() {
+export function usePetForm() {
   const [form, setForm] = useState<PetFormState>(DEFAULT_STATE)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -23,7 +23,7 @@ export function useAddPetForm() {
       animalType: pet.animalType,
       ownerName: pet.ownerName,
       dob: typeof pet.dob === 'string'
-        ? pet.dob.slice(0, 10)
+        ? (pet.dob as string).slice(0, 10)
         : (pet.dob as Date).toISOString().slice(0, 10),
     })
   }

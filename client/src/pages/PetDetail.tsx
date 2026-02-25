@@ -5,7 +5,7 @@ import { getPet, getRecords, deleteRecord } from '../../lib/api'
 import { Heading, Text, Box, Spinner, Table, Button, Badge, Dialog, Flex } from '@chakra-ui/react'
 import { toaster } from '../lib/toaster'
 import type { Record } from '../../types/index'
-import AddMedicalRecordModal from '../components/AddMedicalRecordModal';
+import MedicalRecordModal from '../components/MedicalRecordModal'
 
 type GroupedRecords = {
   VACCINE?: Record[]
@@ -15,8 +15,8 @@ type GroupedRecords = {
 const PetDetail = (): React.ReactElement => {
   const { id } = useParams<{ id: string }>()
   const [deleteError, setDeleteError] = useState<string | null>(null)
-  const [showAddRecordModal, setShowAddRecordModal] = useState(false)
-  const [addRecordModalKey, setAddRecordModalKey] = useState(0)
+  const [showRecordModal, setShowRecordModal] = useState(false)
+  const [editingRecord, setEditingRecord] = useState<Record | null>(null)
 
   const queryClient = useQueryClient()
 
@@ -32,7 +32,14 @@ const PetDetail = (): React.ReactElement => {
     enabled: !!petData,
   })
 
-  const handleDelete = (recordId: string, e: React.MouseEvent) => {
+  const handleEditRecord = (record: Record, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setEditingRecord(record)
+    setShowRecordModal(true)
+  }
+
+  const handleDeleteRecord = (recordId: string, e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     deleteRecord(id!, recordId)
@@ -46,29 +53,16 @@ const PetDetail = (): React.ReactElement => {
       })
   }
 
-  const handleAddRecordSuccess = () => {
-    // queryClient.invalidateQueries({ queryKey: ['pet', id] })
+  const handleRecordModalSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['records', id] })
-    toaster.success({ title: 'Record added' })
+    toaster.success({ title: editingRecord ? 'Record updated' : 'Record added' })
   }
 
-
-  const setSeverityBadge = (severity: 'MILD' | 'MODERATE' | 'SEVERE') => {
+  const setSeverityBadge = (severity: 'MILD' | 'SEVERE') => {
     if (severity === 'MILD') return <Badge outline="1px solid" backgroundColor="green.400" color="white">Mild</Badge>
     if (severity === 'SEVERE') return <Badge outline="1px solid" backgroundColor="red.400" color="white">Severe</Badge>
     return <Badge colorScheme="gray">Unknown</Badge>
   }
-
-  const formatReactions = (reactions: string) => {
-    return reactions.split(', ').map((reaction: string) => {
-      if (reaction === 'hives') return <Badge outline="1px solid" backgroundColor="yellow.400" color="white" mr="2">Hives</Badge>
-      if (reaction === 'rash') return <Badge outline="1px solid" backgroundColor="red.400" color="white" mr="2">Rash</Badge>
-      if (reaction === 'swelling') return <Badge outline="1px solid" backgroundColor="blue.400" color="white" mr="2">Swelling</Badge>
-      if (reaction === 'itching') return <Badge outline="1px solid" backgroundColor="green.400" color="white" mr="2">Itching</Badge>
-      if (reaction === 'other') return <Badge colorScheme="gray" mr="2">Other</Badge>
-      return <Badge colorScheme="gray" mr="2">Unknown</Badge>
-    })
-  } 
 
   if (!id) return <Text color="red.500">No pet ID</Text>
   if (isLoading || recordsLoading) return <Spinner />
@@ -82,12 +76,16 @@ const PetDetail = (): React.ReactElement => {
 
   return (
     <>
-      <AddMedicalRecordModal
-        key={addRecordModalKey}
-        open={showAddRecordModal}
-        onOpenChange={(e) => setShowAddRecordModal(e.open)}
-        onSuccess={handleAddRecordSuccess}
+      <MedicalRecordModal
+        key={editingRecord?.id ?? 'new'}
+        open={showRecordModal}
         petId={id}
+        record={editingRecord}
+        onOpenChange={(e) => {
+          setShowRecordModal(e.open)
+          if (!e.open) setEditingRecord(null)
+        }}
+        onSuccess={handleRecordModalSuccess}
       />
       
       <Dialog.Root
@@ -129,8 +127,8 @@ const PetDetail = (): React.ReactElement => {
             colorScheme="blue" 
             size="sm" 
             onClick={() => {
-              setAddRecordModalKey((k) => k + 1);
-              setShowAddRecordModal(true);
+              setEditingRecord(null)
+              setShowRecordModal(true)
             }}
           >
             Add Record
@@ -169,7 +167,10 @@ const PetDetail = (): React.ReactElement => {
                           <Table.Cell width="20%">{administeredBy}</Table.Cell>
                           <Table.Cell width="40%">{notes}</Table.Cell>
                           <Table.Cell width="10%">
-                            <Button variant="outline" colorScheme="red" size="sm" width="10%" onClick={(e) => handleDelete(record.id, e)}>×</Button>
+                            <Box display="flex" gap="2" justifyContent="end">
+                              <Button variant="outline" size="sm" onClick={(e) => handleEditRecord(record, e)}>edit</Button>
+                              <Button variant="outline" size="sm" onClick={(e) => handleDeleteRecord(record.id, e)}>×</Button>
+                            </Box>
                           </Table.Cell>
                         </Table.Row>
                       )
@@ -204,10 +205,13 @@ const PetDetail = (): React.ReactElement => {
                         <Table.Row key={record.id}>
                           <Table.Cell width="10%">{name}</Table.Cell>
                           <Table.Cell width="20%">{reactions}</Table.Cell>
-                          <Table.Cell width="20%">{setSeverityBadge(severity as 'MILD' | 'MODERATE' | 'SEVERE')}</Table.Cell>
+                          <Table.Cell width="20%">{setSeverityBadge(severity as 'MILD' | 'SEVERE')}</Table.Cell>
                           <Table.Cell width="40%">{notes}</Table.Cell>
                           <Table.Cell width="10%">
-                            <Button variant="outline" colorScheme="red" size="sm" width="10%" onClick={(e) => handleDelete(record.id, e)}>×</Button>
+                            <Box display="flex" gap="2" justifyContent="end">
+                              <Button variant="outline" size="sm" onClick={(e) => handleEditRecord(record, e)}>edit</Button>
+                              <Button variant="outline" size="sm" onClick={(e) => handleDeleteRecord(record.id, e)}>×</Button>
+                            </Box>
                           </Table.Cell>
                         </Table.Row>
                       )
