@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Heading, Text, Box, Spinner, Button, Field } from '@chakra-ui/react'
 import { getPet, createPet, updatePet } from '../../lib/api'
-import type { Pet } from '../../types/index'
+import type { Pet } from '../types/index'
 
 const PetForm = (): React.ReactElement => {
   return <></>

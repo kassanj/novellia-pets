@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { RecordType, Record } from '../../../types/index'
+import type { RecordType, Record } from '../../types/index'
 import type { FieldErrors, RecordFormState, CreateRecordPayload } from './types'
 import { MIN_STRING_LENGTH } from './constants'
 

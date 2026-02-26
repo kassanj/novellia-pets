@@ -2,9 +2,10 @@ import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getPet, getRecords, deleteRecord } from '../../lib/api'
-import { Heading, Text, Box, Spinner, Table, Button, Badge, Dialog, Flex } from '@chakra-ui/react'
+import { Heading, Text, Box, Spinner, Table, Button, Badge, Dialog, Flex, Icon } from '@chakra-ui/react'
+import { PiPencilLineLight, PiXCircleLight } from "react-icons/pi";
 import { toaster } from '../lib/toaster'
-import type { Record } from '../../types/index'
+import type { Record } from '../types/index'
 import MedicalRecordModal from '../components/MedicalRecordModal'
 
 type GroupedRecords = {
@@ -88,6 +89,7 @@ const PetDetail = (): React.ReactElement => {
         onSuccess={handleRecordModalSuccess}
       />
       
+      {/* TODO: Move this to a separate global component */}
       <Dialog.Root
         open={!!deleteError}
         onOpenChange={(e) => {
@@ -168,8 +170,12 @@ const PetDetail = (): React.ReactElement => {
                           <Table.Cell width="40%">{notes}</Table.Cell>
                           <Table.Cell width="10%">
                             <Box display="flex" gap="2" justifyContent="end">
-                              <Button variant="outline" size="sm" onClick={(e) => handleEditRecord(record, e)}>edit</Button>
-                              <Button variant="outline" size="sm" onClick={(e) => handleDeleteRecord(record.id, e)}>×</Button>
+                              <Button variant="outline" size="sm" onClick={(e) => handleEditRecord(record, e)}>
+                                <Icon as={PiPencilLineLight} />
+                              </Button>
+                              <Button variant="outline" size="sm" onClick={(e) => handleDeleteRecord(record.id, e)}>
+                                <Icon as={PiXCircleLight} />
+                              </Button>
                             </Box>
                           </Table.Cell>
                         </Table.Row>
@@ -209,8 +215,12 @@ const PetDetail = (): React.ReactElement => {
                           <Table.Cell width="40%">{notes}</Table.Cell>
                           <Table.Cell width="10%">
                             <Box display="flex" gap="2" justifyContent="end">
-                              <Button variant="outline" size="sm" onClick={(e) => handleEditRecord(record, e)}>edit</Button>
-                              <Button variant="outline" size="sm" onClick={(e) => handleDeleteRecord(record.id, e)}>×</Button>
+                              <Button variant="outline" size="sm" onClick={(e) => handleEditRecord(record, e)}>
+                                <Icon as={PiPencilLineLight} />
+                              </Button>
+                              <Button variant="outline" size="sm" onClick={(e) => handleDeleteRecord(record.id, e)}>
+                                <Icon as={PiXCircleLight} />
+                              </Button>
                             </Box>
                           </Table.Cell>
                         </Table.Row>

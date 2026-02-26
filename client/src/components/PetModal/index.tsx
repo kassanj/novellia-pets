@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react'
-import { Dialog, Field, Input, Button, Text } from '@chakra-ui/react'
+import { Dialog, Field, Input, Button, Text, NativeSelect } from '@chakra-ui/react'
 import { createPet, updatePet } from '../../../lib/api'
 import { usePetForm } from './usePetForm'
 import type { PetModalProps } from './types'
+import { ANIMAL_TYPES } from '../../constants/pets'
 
 export default function PetModal({
   open,
@@ -89,14 +90,16 @@ export default function PetModal({
 
               <Field.Root mb="4" invalid={!!fieldErrors.animalType}>
                 <Field.Label>Animal type</Field.Label>
-                <Input
-                  value={form.animalType}
-                  onChange={e => updateField('animalType', e.target.value)}
-                  placeholder="e.g. Dog, Cat"
-                />
-                {fieldErrors.animalType && (
-                  <Field.ErrorText>{fieldErrors.animalType}</Field.ErrorText>
-                )}
+                <NativeSelect.Root>
+                  <NativeSelect.Field
+                    value={form.animalType}
+                    onChange={e => updateField('animalType', e.target.value)}
+                  >
+                    {ANIMAL_TYPES.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </NativeSelect.Field>
+                </NativeSelect.Root>
               </Field.Root>
 
               <Field.Root mb="4" invalid={!!fieldErrors.ownerName}>

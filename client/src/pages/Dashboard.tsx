@@ -1,6 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { Heading, Text, Spinner } from '@chakra-ui/react'
+import { Heading, Text, Spinner, Card, Flex, Box } from '@chakra-ui/react'
 import { getDashboardStats } from '../../lib/api';
+import { NumberGraph } from '../components/graphs/NumberGraph';
+import { AnimalTypePieGraph } from '../components/graphs/AnimalTypePieGraph';
+import { AnimalTypeCountGraph } from '../components/graphs/AnimalTypeCountGraph';
+import PetsWithLastVaccine from '../components/graphs/PetsWithLastVaccine';
+import PetsWithNoVaccine from '../components/graphs/PetsWithNoVaccine';
 
 const Dashboard = () => {
   
@@ -18,30 +23,66 @@ const Dashboard = () => {
 
       {data && data.totalPets === 0 && (
         <Text>No pets found</Text>
-      )}
+      )}        
+   
+      {/* {data && data.totalPets > 0 && (  */}
+        <Flex direction={{ base: 'column', md: 'row' }} gap="3" width="100%">
 
-      {data && data.totalPets > 0 && (
-        <Text>Total pets: {data.totalPets}</Text>
-      )}
+          <Flex direction="column" flex={2} minW={0} gap="3">
 
-      {data && data.petsByType.length > 0 && (
-        <Text>Pets by animal type: {data.petsByType.map((p: { type: string; count: number }) => `${p.type}: ${p.count}`).join(', ')}</Text>
-      )}
+            {/* First two columns + table underneath */}
+            <Flex direction={{ base: 'column', md: 'row' }} gap="3" flex={1}>
+              <Box flex={1} minW={0}>
+                {data && data.totalPets > 0 && (
+                  <NumberGraph total={data.totalPets} title="Total pets" />
+                )}
 
-      {data && data.upcomingVaccines.length > 0 && (
-        <Text>Upcoming vaccines: {data.upcomingVaccines.length}</Text>
-      )}
+                {data && data.upcomingVaccines.length > 0 && (
+                  <NumberGraph total={data.upcomingVaccines.length} title="Upcoming vaccines" />
+                )}
+              </Box>
 
-      {data && data.severeAllergies > 0 && (
-        <Text>Severe allergies: {data.severeAllergies}</Text>
-      )}
+              <Box flex={1} minW={0}>
+                {data && data.severeAllergies > 0 && (
+                  <NumberGraph total={data.severeAllergies} title="Severe allergies" />
+                )}
 
-      {data && data.totalRecords > 0 && (
-        <Text>Total medical records: {data.totalRecords}</Text>
-      )}
+                {data && data.totalRecords > 0 && (
+                  <NumberGraph total={data.totalRecords} title="Total medical records" />
+                )}
+              </Box>
+            </Flex>
 
+            {/* Vaccines tables */}
+            {data && data.petsWithLastVaccine?.length > 0 && (
+              <PetsWithLastVaccine petData={data.petsWithLastVaccine} />
+            )}
 
-      {/* <Text>{JSON.stringify(data, null, 2)}</Text> */}
+            {data && data.petsWithNoVaccine?.length > 0 && (
+              <PetsWithNoVaccine petData={data.petsWithNoVaccine} />
+            )}
+          </Flex>
+
+          {/* Animal type graphs - pie chart and count graph */}
+          <Box flex={2} minW={0}>
+            {data && data.totalRecords > 0 && (
+              <Card.Root borderColor="gray.200" borderWidth="1px" borderRadius="md" mb="2" p="4">
+                <Card.Body>
+                  <AnimalTypePieGraph data={data.petsByType} />
+                </Card.Body>
+              </Card.Root>
+            )}
+
+            {data && data.petsByType.length > 0 && (
+              <Card.Root borderColor="gray.200" borderWidth="1px" borderRadius="md" mb="2">
+                <Card.Body>
+                  <AnimalTypeCountGraph data={data.petsByType} />
+                </Card.Body>
+              </Card.Root>
+            )}
+          </Box>
+        </Flex>
+      {/* )} */}
     </>
   )
 }

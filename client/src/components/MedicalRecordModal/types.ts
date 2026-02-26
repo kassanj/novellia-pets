@@ -1,4 +1,4 @@
-import type { RecordType } from '../../../types/index'
+import type { RecordType } from '../../types/index'
 
 export type FieldErrors = {
   name?: string

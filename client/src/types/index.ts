@@ -15,12 +15,6 @@ export type Record = {
 
 export type RecordType = 'VACCINE' | 'ALLERGY'
 
-// export type RecordData = {
-//   name: string
-//   date: Date
-//   administeredBy: string
-//   notes: string
-// }
 
 export type AllergyData = {
   name: string

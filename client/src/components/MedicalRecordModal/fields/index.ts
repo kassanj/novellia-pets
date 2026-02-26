@@ -1,4 +1,4 @@
-import type { RecordType } from '../../../../types/index'
+import type { RecordType } from '../../../types/index'
 import type { ComponentType } from 'react'
 import type { RecordFormState, FieldErrors } from '../types'
 import VaccineFields from './VaccineFields'

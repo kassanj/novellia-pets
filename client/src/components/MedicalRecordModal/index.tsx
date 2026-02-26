@@ -8,8 +8,8 @@ import {
   RECORD_TYPE_NAME_PLACEHOLDERS
 } from './fields/index'
 import useRecordForm from './useRecordForm'
-import type { RecordType } from '../../../types/index'
-import type { Record } from '../../../types/index'
+import type { RecordType } from '../../types/index'
+import type { Record } from '../../types/index'
 
 export type MedicalRecordModalProps = {
   open: boolean

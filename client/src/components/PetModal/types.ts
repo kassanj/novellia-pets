@@ -12,7 +12,7 @@ export type FieldErrors = {
     dob: string
   }
   
-  import type { Pet as GlobalPet } from '../../../types/index'
+  import type { Pet as GlobalPet } from '../../types/index'
 
   export type PetModalProps = {
     open: boolean

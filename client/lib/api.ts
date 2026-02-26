@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Pet, Record } from '../types/index.ts';
+import type { Pet, Record } from '../src/types/index.ts';
 
 const api = axios.create({ baseURL: '/api' })
 

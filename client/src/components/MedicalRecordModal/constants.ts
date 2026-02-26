@@ -1,4 +1,4 @@
-import type { RecordType } from '../../../types/index'
+import type { RecordType } from '../../types/index'
 
 export const RECORD_TYPES: { value: RecordType; label: string }[] = [
   { value: 'VACCINE', label: 'Vaccine' },

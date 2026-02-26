@@ -1,22 +1,26 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { Heading, Text, Box, Spinner, Table, Button, Link as ChakraLink, Flex, Input } from '@chakra-ui/react'
+import { Heading, Text, Box, Spinner, Table, Button, Link as ChakraLink, Flex, Input, NativeSelect, Icon } from '@chakra-ui/react'
 import { deletePet } from '../../lib/api'
-import type { Pet } from '../../types/index'
+import type { Pet } from '../types/index'
 import { toaster } from '../lib/toaster'
 import PetModal from '../components/PetModal';
 import { usePetsSearch } from '../hooks/usePetSearch'
+import type { AnimalTypeValue } from '../constants/pets'
+import { ANIMAL_TYPES } from '../constants/pets'
+import { PiPencilLineLight, PiXCircleLight } from 'react-icons/pi'
 
 
 const PetList = (): React.ReactElement => {
   const [petModalOpen, setPetModalOpen] = useState(false)
   const [editingPet, setEditingPet] = useState<Pet | null>(null)
   const [search, setSearch] = useState('')
+  const [typeFilter, setTypeFilter] = useState<AnimalTypeValue>('')
 
   const queryClient = useQueryClient()
 
-  const { data: pets, isLoading, error } = usePetsSearch({ search })
+  const { data: pets, isLoading, error } = usePetsSearch({ search, type: typeFilter || undefined })
 
   const handleDeletePet = (petId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -77,6 +81,18 @@ const PetList = (): React.ReactElement => {
             </Button>`
           </Box>
           <Box>
+            <Flex gap="2">
+              <NativeSelect.Root>
+                <NativeSelect.Field
+                  value={typeFilter}
+                  onChange={e => setTypeFilter(e.target.value as AnimalTypeValue)}
+                >
+                  {ANIMAL_TYPES.map(opt => (
+                    <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
+                  ))}
+                </NativeSelect.Field>
+                <NativeSelect.Indicator />
+              </NativeSelect.Root>
        
               <Input
                 type="text"
@@ -84,7 +100,7 @@ const PetList = (): React.ReactElement => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
-      
+              </Flex>
           </Box>
         </Flex>
 
@@ -136,14 +152,14 @@ const PetList = (): React.ReactElement => {
                             size="sm"
                             onClick={(e) => handleEditPet(pet, e)}
                           >
-                            edit
+                           <Icon as={PiPencilLineLight} />
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={(e) => handleDeletePet(pet.id, e)}
                         >
-                          x
+                          <Icon as={PiXCircleLight} />
                         </Button>
                       </Box>
                     </Table.Cell>
