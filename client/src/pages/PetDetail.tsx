@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getPet, getRecords, deleteRecord } from '../../lib/api'
-import { Heading, Text, Box, Spinner, Table, Button, Badge, Dialog, Flex, Icon } from '@chakra-ui/react'
+import { Heading, Text, Box, Spinner, Table, Button, Badge, Dialog, Flex, Icon, Card, Alert } from '@chakra-ui/react'
 import { PiPencilLineLight, PiXCircleLight } from "react-icons/pi";
 import { toaster } from '../lib/toaster'
 import type { Record } from '../types/index'
@@ -75,6 +75,15 @@ const PetDetail = (): React.ReactElement => {
   const allergies = records?.ALLERGY ?? []
   const hasAnyRecords = vaccines.length > 0 || allergies.length > 0
 
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  const vaccinesDueForRenewal = vaccines.filter((record) => {
+    const data = record.data && 'date' in record.data ? record.data.date : undefined
+    if (!data) return false
+    const administeredDate = typeof data === 'string' ? new Date(data) : data
+    return administeredDate < thirtyDaysAgo
+  })
+
   return (
     <>
       <MedicalRecordModal
@@ -114,40 +123,89 @@ const PetDetail = (): React.ReactElement => {
         </Dialog.Positioner>
       </Dialog.Root>
 
-      <Box mb="4">
-        <Heading as="h1" py="4">Pet Name: {petData.name}</Heading>
-        <Text>Animal type: {petData.animalType}</Text>
-        <Text>Owner name: {petData.ownerName}</Text>
-        <Text>Date of birth: {dob.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</Text>
+      <Box
+        mb="6"
+        p="5"
+        borderRadius="lg"
+        borderWidth="1px"
+        borderColor="teal.200"
+        borderLeftWidth="4px"
+        borderLeftColor="teal.500"
+        bg="teal.50"
+      >
+        <Heading as="h1" size="xl" mb="4" fontWeight="semibold" color="teal.800">
+          {petData.name}
+        </Heading>
+        <Flex direction="column" gap="2" maxW="md">
+          <Flex gap="2" align="baseline">
+            <Text fontSize="sm" color="teal.700" fontWeight="medium" minW="7rem">
+              Animal type
+            </Text>
+            <Text color="gray.700">{petData.animalType}</Text>
+          </Flex>
+          <Flex gap="2" align="baseline">
+            <Text fontSize="sm" color="teal.700" fontWeight="medium" minW="7rem">
+              Owner name
+            </Text>
+            <Text color="gray.700">{petData.ownerName}</Text>
+          </Flex>
+          <Flex gap="2" align="baseline">
+            <Text fontSize="sm" color="teal.700" fontWeight="medium" minW="7rem">
+              Date of birth
+            </Text>
+            <Text color="gray.700">{dob.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</Text>
+          </Flex>
+        </Flex>
       </Box>
 
-      <Box>
-        <Flex justifyContent="space-between" alignItems="center">
-          <Heading as="h2" py="4">Medical Records</Heading>
-          <Button 
-            variant="outline" 
-            colorScheme="blue" 
-            size="sm" 
-            onClick={() => {
-              setEditingRecord(null)
-              setShowRecordModal(true)
-            }}
-          >
-            Add Record
-          </Button>
-        </Flex>
-        {!hasAnyRecords ? (
-          <Text>No medical records found</Text>
-        ) : (
-          <>
-            {/* Vaccines Table */}
+      {vaccinesDueForRenewal.length > 0 && (
+        <Alert.Root status="warning" variant="subtle" mb="6" borderRadius="md">
+          <Alert.Indicator />
+          <Alert.Content flex="1">
+            <Alert.Title>Vaccines due for renewal</Alert.Title>
+            <Alert.Description>
+              {petData.name} has {vaccinesDueForRenewal.length} vaccine{vaccinesDueForRenewal.length !== 1 ? 's' : ''} that were administered more than 30 days ago. Consider scheduling a renewal.
+              {vaccinesDueForRenewal.length > 0 && (
+                <Text mt="2" fontSize="sm" fontWeight="medium">
+                  Due: {vaccinesDueForRenewal.map((r) => r.data && 'name' in r.data ? r.data.name : 'Vaccine').join(', ')}
+                </Text>
+              )}
+            </Alert.Description>
+          </Alert.Content>
+        </Alert.Root>
+      )}
+
+      <Card.Root borderColor="teal.200" borderWidth="1px" borderRadius="lg" overflow="hidden" bg="white">
+        <Box px="5" py="3">
+          <Flex justifyContent="space-between" alignItems="center">
+            <Heading as="h2" size="lg" py="0" color="teal.800">Medical Records</Heading>
+            <Button 
+              variant="outline" 
+              colorPalette="teal"
+              size="sm"
+              _hover={{ bg: 'gray.100' }}
+              onClick={() => {
+                setEditingRecord(null)
+                setShowRecordModal(true)
+              }}
+            >
+              Add Record
+            </Button>
+          </Flex>
+        </Box>
+        <Card.Body p="5">
+          {!hasAnyRecords ? (
+            <Text color="gray.600">No medical records found</Text>
+          ) : (
+            <>
+              {/* Vaccines Table */}
             {/* Requirements - name of the vaccine, date it was administered, administered by, and notes */}
             {vaccines.length > 0 && (
               <Box mb="6">
-                <Heading as="h3" size="md" mb="3">Vaccines</Heading>
+                <Heading as="h3" size="md" mb="3" color="teal.700">Vaccines</Heading>
                 <Table.Root>
                   <Table.Header>
-                    <Table.Row>
+                    <Table.Row bg="teal.50">
                       <Table.ColumnHeader width="10%">Name</Table.ColumnHeader>
                       <Table.ColumnHeader width="20%">Date</Table.ColumnHeader>
                       <Table.ColumnHeader width="20%">Administered By</Table.ColumnHeader>
@@ -170,10 +228,10 @@ const PetDetail = (): React.ReactElement => {
                           <Table.Cell width="40%">{notes}</Table.Cell>
                           <Table.Cell width="10%">
                             <Box display="flex" gap="2" justifyContent="end">
-                              <Button variant="outline" size="sm" onClick={(e) => handleEditRecord(record, e)}>
+                              <Button variant="outline" size="sm" _hover={{ bg: 'gray.100' }} onClick={(e) => handleEditRecord(record, e)}>
                                 <Icon as={PiPencilLineLight} />
                               </Button>
-                              <Button variant="outline" size="sm" onClick={(e) => handleDeleteRecord(record.id, e)}>
+                              <Button variant="outline" size="sm" _hover={{ bg: 'gray.100' }} onClick={(e) => handleDeleteRecord(record.id, e)}>
                                 <Icon as={PiXCircleLight} />
                               </Button>
                             </Box>
@@ -190,10 +248,10 @@ const PetDetail = (): React.ReactElement => {
             {/* Requirements - name of the allergy, pet's reactions (e.g., hives, rash), severity (mild or severe), and notes */}
             {allergies.length > 0 && (
               <Box mb="6">
-                <Heading as="h3" size="md" mb="3">Allergies</Heading>
+                <Heading as="h3" size="md" mb="3" color="teal.700">Allergies</Heading>
                 <Table.Root>
                   <Table.Header>
-                    <Table.Row>
+                    <Table.Row bg="teal.50">
                       <Table.ColumnHeader width="10%">Name</Table.ColumnHeader>
                       <Table.ColumnHeader width="20%">Reactions</Table.ColumnHeader>
                       <Table.ColumnHeader width="20%">Severity</Table.ColumnHeader>
@@ -215,10 +273,10 @@ const PetDetail = (): React.ReactElement => {
                           <Table.Cell width="40%">{notes}</Table.Cell>
                           <Table.Cell width="10%">
                             <Box display="flex" gap="2" justifyContent="end">
-                              <Button variant="outline" size="sm" onClick={(e) => handleEditRecord(record, e)}>
+                              <Button variant="outline" size="sm" _hover={{ bg: 'gray.100' }} onClick={(e) => handleEditRecord(record, e)}>
                                 <Icon as={PiPencilLineLight} />
                               </Button>
-                              <Button variant="outline" size="sm" onClick={(e) => handleDeleteRecord(record.id, e)}>
+                              <Button variant="outline" size="sm" _hover={{ bg: 'gray.100' }} onClick={(e) => handleDeleteRecord(record.id, e)}>
                                 <Icon as={PiXCircleLight} />
                               </Button>
                             </Box>
@@ -230,9 +288,10 @@ const PetDetail = (): React.ReactElement => {
                 </Table.Root>
               </Box>
             )}
-          </>
-        )}
-      </Box>
+            </>
+          )}
+        </Card.Body>
+      </Card.Root>
     </>
   )
 }

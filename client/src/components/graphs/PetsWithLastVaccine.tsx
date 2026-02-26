@@ -1,5 +1,5 @@
-import { Card, Text, Table, Link as ChakraLink } from '@chakra-ui/react'
-import { Link } from 'react-router-dom'
+import { Card, Text, Table } from '@chakra-ui/react'
+import { useNavigate } from 'react-router-dom'
 
 type PetWithLastVaccine = {
   id: string
@@ -11,7 +11,8 @@ type PetWithLastVaccine = {
 }
 
 const PetsWithLastVaccine = ({ petData }: { petData: PetWithLastVaccine[] }) => {
-  
+  const navigate = useNavigate()
+
   return (
     <Card.Root borderColor="gray.200" borderWidth="1px" borderRadius="md" p="4">
     <Text mb="2" fontWeight="medium">Upcoming Vaccine Renewals</Text>
@@ -23,17 +24,21 @@ const PetsWithLastVaccine = ({ petData }: { petData: PetWithLastVaccine[] }) => 
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {petData.map((row: { id: string; name: string; lastVaccine: { name?: string; date?: string } | null }) => (
-            <Table.Row key={row.id}>
-              <Table.Cell>
-                <ChakraLink asChild>
-                  <Link to={`/pets/${row.id}`}>
-                    <Text fontWeight="medium" _hover={{ textDecoration: 'underline' }}>
-                      {row.name}
-                    </Text>
-                  </Link>
-                </ChakraLink>
-                </Table.Cell>
+          {petData.map((row: PetWithLastVaccine) => (
+            <Table.Row
+              key={row.id}
+              cursor="pointer"
+              _hover={{ bg: "gray.50" }}
+              onClick={() => navigate(`/pets/${row.id}`)}
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault()
+                  navigate(`/pets/${row.id}`)
+                }
+              }}
+            >
+              <Table.Cell fontWeight="medium">{row.name}</Table.Cell>
               <Table.Cell>
                 {row.lastVaccine
                   ? `${row.lastVaccine.name ?? '-'}${row.lastVaccine.date ? ` (${new Date(row.lastVaccine.date).toLocaleDateString()})` : ''}`

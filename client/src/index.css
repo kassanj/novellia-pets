@@ -3,14 +3,9 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Avenir', 'Segoe UI', sans-serif;
 }
 
-a{
+a {
   text-decoration: none;
   outline: none;
-}
-
-a:focus {
-  text-decoration: underline;
-  text-underline-offset: 4px;
 }
 
 p:active, p:focus {

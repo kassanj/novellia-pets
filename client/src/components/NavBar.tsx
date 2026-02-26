@@ -1,9 +1,11 @@
 import React from 'react';
-import { Box, Flex, Heading, Link as ChakraLink, Text } from '@chakra-ui/react'
-import { Link, useLocation } from 'react-router-dom'
+import { Box, Flex, Heading, Link as ChakraLink, Text, Icon } from '@chakra-ui/react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { PiDogLight } from 'react-icons/pi';
 
 const Navbar = (): React.ReactElement => {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
 
   const links = [
     { to: '/', label: 'Dashboard' },
@@ -13,7 +15,21 @@ const Navbar = (): React.ReactElement => {
   return (
     <Box bg="white" borderBottomWidth="1px" borderColor="gray.200" px="6" py="4">
       <Flex maxW="5xl" mx="auto" align="center" justify="space-between">
-        <Heading size="md">🐾 Novellia Pets</Heading>
+        <Heading 
+        size="md"
+        onClick={() => navigate('/')}
+        cursor="pointer"
+        _hover={{ color: 'gray.500' }}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault()
+            navigate('/')
+          }
+        }}
+        >
+          <Icon as={PiDogLight} /> Novellia Pets
+        </Heading>
         <Flex gap="6">
           {links.map(link => (
             <ChakraLink asChild key={link.to}>

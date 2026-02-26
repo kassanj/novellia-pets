@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { Heading, Text, Box, Spinner, Table, Button, Link as ChakraLink, Flex, Input, NativeSelect, Icon } from '@chakra-ui/react'
 import { deletePet } from '../../lib/api'
@@ -19,6 +19,7 @@ const PetList = (): React.ReactElement => {
   const [typeFilter, setTypeFilter] = useState<AnimalTypeValue>('')
 
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const { data: pets, isLoading, error } = usePetsSearch({ search, type: typeFilter || undefined })
 
@@ -65,13 +66,13 @@ const PetList = (): React.ReactElement => {
       />
 
       <Box mb="4">
-        
-        <Flex justifyContent="space-between" alignItems="center">
+ 
+      `<Heading as="h1" py="4">Pets</Heading>
+
+       <Flex justifyContent="space-between" alignItems="center" mb="4">
           <Box>
-      `    <Heading as="h1" py="4">Pets</Heading>
             <Button
               variant="outline"
-              mb="4"
               onClick={() => {
                 setEditingPet(null)
                 setPetModalOpen(true)
@@ -129,15 +130,23 @@ const PetList = (): React.ReactElement => {
                 const dob = typeof pet.dob === 'string' ? new Date(pet.dob) : pet.dob
 
                 return (
-                  <Table.Row key={pet.id}>
+                  <Table.Row 
+                      key={pet.id}
+                      cursor="pointer"
+                      _hover={{ bg: "gray.50" }}
+                      onClick={() => navigate(`/pets/${pet.id}`)}
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault()
+                          navigate(`/pets/${pet.id}`)
+                        }
+                      }}
+                    >
                     <Table.Cell>
-                      <ChakraLink asChild>
-                        <Link to={`/pets/${pet.id}`}>
-                          <Text fontWeight="medium" _hover={{ textDecoration: 'underline' }}>
-                            {pet.name}
-                          </Text>
-                        </Link>
-                      </ChakraLink>
+                      <Text fontWeight="medium">
+                        {pet.name}
+                      </Text>
                     </Table.Cell>
                     <Table.Cell>{pet.animalType}</Table.Cell>
                     <Table.Cell>{pet.ownerName}</Table.Cell>
