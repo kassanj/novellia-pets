@@ -17,7 +17,7 @@ A pet management app for tracking pets and their medical records (vaccines and a
 1. Clone the repo
 2. Run `make install`
 3. Copy the env file: `cp server/.env.example server/.env`
-4. Run the database migration: `make migrate` (when prompted, name the migration e.g. `init`)
+4. Run the database migration: `make migrate`
 5. Seed the database with sample data: `make seed`
 6. Run `make dev`
 
