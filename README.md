@@ -64,4 +64,28 @@ novellia-pets/
 └── README.md
 ```
 
+## Potential Production Upgrades
 
+**Database** -
+Migrate from SQLite to PostgreSQL for concurrent writes and production reliability. Prisma makes this nearly seamless. Read replicas would be introduced early given the app's read-dominant usage pattern, ensuring dashboard aggregations (the most expensive queries) never compete with write latency.
+
+**Caching** -
+Add Redis server-side in front of the database, targeting the dashboard stats and pet list endpoints, the routes doing the heaviest lifting.
+
+**Auth / Security / Compliance** -
+No auth layer currently exists, which is the most critical gap for a HIPAA-relevant app. Auth0 would be the first choice, providing MFA, Role-Based Access Control, and audit logging out of the box. Additional hardening would include encrypting data at rest, scoping all queries to the authenticated user, and short-lived tokens with refresh rotation. The data model would gain a User table with roles, and every resource would carry an owner_id foreign key.
+
+**Frontend Framework** -
+Migrate from Vite to Next.js. The current app is a pure client-side SPA, which has limitations at production scale. Next.js adds SSR and static generation for faster initial loads, along with file-based routing that scales more cleanly as the app grows.
+
+**API Layer** -
+Swap Express for Fastify for better throughput. GraphQL is worth considering to reduce overfetching and better support multiple consumers such as mobile and web clients.
+
+**Search** -
+Current filtering is appropriate for MVP scale. Elasticsearch would be introduced once search complexity or data volume justifies it.
+
+**UI** -
+Quick wins include pagination, a 404 page, responsiveness, and accessibility improvements. A PetOwner dashboard is also planned.
+
+**Testing & Monitoring** -
+Add unit and end-to-end test coverage, and integrate Datadog for production monitoring and alerting.
