@@ -89,3 +89,7 @@ Quick wins include pagination, a 404 page, responsiveness, and accessibility imp
 
 **Testing & Monitoring** -
 Add unit and end-to-end test coverage, and integrate Datadog for production monitoring and alerting.
+
+## AI Tools
+
+For this project, I used Cursor as my AI-assisted development environment. I leaned on it primarily  for debugging to help identify and resolve issues more efficiently and quickly. I also used Claude during the planning / architecture phase to help think through structure and approach as well as for project management.
