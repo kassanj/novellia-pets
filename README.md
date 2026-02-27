@@ -73,7 +73,7 @@ Migrate from SQLite to PostgreSQL for concurrent writes and production reliabili
 Add Redis server-side in front of the database, targeting the dashboard stats and pet list endpoints, the routes doing the heaviest lifting.
 
 **Auth / Security / Compliance** -
-No auth layer currently exists, which is the most critical gap for a HIPAA-relevant app. Auth0 would be the first choice, providing MFA, Role-Based Access Control, and audit logging out of the box. Additional hardening would include encrypting data at rest, scoping all queries to the authenticated user, and short-lived tokens with refresh rotation. The data model would gain a User table with roles, and every resource would carry an owner_id foreign key.
+No auth layer currently exists, which is the most critical gap for a HIPAA-relevant app. Auth0 would be the first choice, providing MFA, Role-Based Access Control, and audit logging out of the box. Additional safeguards would include encrypting data at rest, scoping all queries to the authenticated user, and short-lived tokens with refresh rotation. The data model would gain a User table with roles, and every resource would carry an owner_id foreign key.
 
 **Frontend Framework** -
 Migrate from Vite to Next.js. The current app is a pure client-side SPA, which has limitations at production scale. Next.js adds SSR and static generation for faster initial loads, along with file-based routing that scales more cleanly as the app grows.
