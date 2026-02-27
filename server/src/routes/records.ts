@@ -7,6 +7,25 @@ const router = Router({ mergeParams: true })
 
 type RecordsParams = { petId?: string; id?: string }
 
+type Record = {
+  recordType: string
+  data: AllergyData | VaccineData
+}
+
+type AllergyData = {
+  name: string
+  reactions: string[]
+  severity: 'MILD' | 'MODERATE' | 'SEVERE'
+  notes: string
+}
+
+type VaccineData = {
+  name: string
+  date: Date
+  administeredBy: string
+  notes: string
+}
+
 const VaccineSchema = z.object({
   recordType: z.literal('VACCINE'),
   data: z.object({
@@ -40,11 +59,28 @@ router.get('/', async (req: Request<RecordsParams>, res) => {
       res.status(400).json({ error: 'petId is required' })
       return
     }
+
     const records = await prisma.medicalRecord.findMany({
       where: { petId },
       orderBy: { createdAt: 'desc' }
     })
-    res.json(records)
+
+    type RecordItem = (typeof records)[number]
+    type GroupedByType = { [k: string]: RecordItem[] }
+    
+    const grouped = records.reduce(
+      (acc: GroupedByType, record: RecordItem) => {
+        const type = record.recordType
+        if (!acc[type]) {
+          acc[type] = []
+        }
+        acc[type].push(record)
+        return acc
+      },
+      {} as GroupedByType
+    )
+
+    res.json(grouped)
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch records' })
   }
