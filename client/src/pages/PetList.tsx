@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { Heading, Text, Box, Spinner, Table, Button, Link as ChakraLink, Flex, Input, NativeSelect, Icon } from '@chakra-ui/react'
 import { deletePet } from '../../lib/api'

@@ -5,6 +5,7 @@ import { getPet, getRecords, deleteRecord } from '../../lib/api'
 import { Heading, Text, Box, Spinner, Table, Button, Badge, Dialog, Flex, Icon, Card, Alert } from '@chakra-ui/react'
 import { PiPencilLineLight, PiXCircleLight } from "react-icons/pi";
 import { toaster } from '../lib/toaster'
+import { formatDateOnly } from '../lib/date'
 import type { Record } from '../types/index'
 import MedicalRecordModal from '../components/MedicalRecordModal'
 
@@ -198,7 +199,7 @@ const PetDetail = (): React.ReactElement => {
             <Text color="gray.600">No medical records found</Text>
           ) : (
             <>
-              {/* Vaccines Table */}
+            {/* Vaccines Table */}
             {/* Requirements - name of the vaccine, date it was administered, administered by, and notes */}
             {vaccines.length > 0 && (
               <Box mb="6">
@@ -216,14 +217,14 @@ const PetDetail = (): React.ReactElement => {
                   <Table.Body>
                     {vaccines.map((record) => {
                       const d = record.data && 'date' in record.data ? record.data.date : undefined
-                      const dateStr = d ? (typeof d === 'string' ? new Date(d) : d) : '-'
+                      const dateStr = d != null ? formatDateOnly(d) : '-'
                       const administeredBy = record.data && 'administeredBy' in record.data ? record.data.administeredBy : '-'
                       const notes = record.data?.notes ?? '-'
                       const name = record.data?.name ?? '-'
                       return (
                         <Table.Row key={record.id}>
                           <Table.Cell width="10%">{name}</Table.Cell>
-                          <Table.Cell width="20%">{dateStr.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</Table.Cell>
+                          <Table.Cell width="20%">{dateStr}</Table.Cell>
                           <Table.Cell width="20%">{administeredBy}</Table.Cell>
                           <Table.Cell width="40%">{notes}</Table.Cell>
                           <Table.Cell width="10%">
@@ -288,6 +289,7 @@ const PetDetail = (): React.ReactElement => {
                 </Table.Root>
               </Box>
             )}
+
             </>
           )}
         </Card.Body>
