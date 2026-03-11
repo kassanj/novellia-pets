@@ -1,5 +1,6 @@
 import { Card, Text, Table } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
+import { formatDateOnly } from '../../lib/date'
 
 type PetWithLastVaccine = {
   id: string
@@ -41,7 +42,7 @@ const PetsWithLastVaccine = ({ petData }: { petData: PetWithLastVaccine[] }) => 
               <Table.Cell fontWeight="medium">{row.name}</Table.Cell>
               <Table.Cell>
                 {row.lastVaccine
-                  ? `${row.lastVaccine.name ?? '-'}${row.lastVaccine.date ? ` (${new Date(row.lastVaccine.date).toLocaleDateString()})` : ''}`
+                  ? `${row.lastVaccine.name ?? '-'}${row.lastVaccine.date ? ` (${formatDateOnly(row.lastVaccine.date)})` : ''}`
                   : '-'}
               </Table.Cell>
             </Table.Row>
